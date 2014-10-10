@@ -1,0 +1,65 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+version = '0.1.0'
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+}
+
+
+repositories {
+    jcenter()
+	mavenCentral()
+ //   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+dependencies {
+	compile 'org.codehaus.groovy:groovy-all:2.2.0'
+	compile 'org.apache.ant:ant:1.7.0'
+	compile 'log4j:log4j:1.2.16'
+    compile "org.spockframework:spock-core:0.7-groovy-2.0"
+}
+
+sourceSets {
+    main.groovy.srcDir 'src'
+    test.groovy.srcDir 'test'
+    main.resources {
+        srcDir 'src/resources'
+    }
+}
+
+
+
+groovydoc {
+    source = 'src/main/groovy'
+    footer = "Uglify Java is Licensed under the APACHE 2 License"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task(console, dependsOn: 'classes', type: JavaExec) {
+  main = 'groovy.ui.Console'
+  classpath = sourceSets.main.runtimeClasspath
+}
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+        showStandardStreams = true
+    }
+}
